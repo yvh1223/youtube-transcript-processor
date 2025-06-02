@@ -13,6 +13,34 @@ An automated Python application that processes YouTube channels to extract trans
 - **Duplicate Prevention**: Tracks processed videos to avoid reprocessing
 - **Error Handling**: Robust error handling with detailed logging
 
+## 🔄 How It Works
+
+```mermaid
+sequenceDiagram
+    participant Script
+    participant YouTube
+    participant OpenAI
+    participant Google TTS
+    participant Google Drive
+
+    Script->>YouTube: Scrape recent videos (3 days)
+    YouTube-->>Script: Video list + metadata
+    
+    Script->>YouTube: Get transcript for each video
+    YouTube-->>Script: Transcript text
+    
+    Script->>OpenAI: Generate summary from transcript
+    OpenAI-->>Script: AI-generated summary
+    
+    Script->>Google TTS: Convert summary to audio
+    Google TTS-->>Script: MP3 audio file
+    
+    Script->>Google Drive: Upload transcript, summary, audio
+    Google Drive-->>Script: Upload confirmation
+    
+    Note over Script: Delete local files after upload
+```
+
 ## 📁 Project Structure
 
 ```
@@ -45,17 +73,31 @@ git clone https://github.com/yvh1223/youtube-transcript-processor.git
 cd youtube-transcript-processor
 ```
 
-### 2. Create Virtual Environment
+### 2. Quick Setup (Recommended)
 ```bash
+python setup.py
+```
+This automated script will:
+- Check Python version and FFmpeg
+- Create virtual environment
+- Install dependencies
+- Set up configuration files
+- Create necessary directories
+
+### 3. Manual Setup
+```bash
+# Create Virtual Environment
 python -m venv venv
 source venv/bin/activate  # On macOS/Linux
 # or
 venv\Scripts\activate     # On Windows
-```
 
-### 3. Install Dependencies
-```bash
+# Install Dependencies
 pip install -r requirements.txt
+
+# Copy configuration files
+cp config.yaml.example config.yaml
+cp .env.example .env
 ```
 
 ### 4. Install FFmpeg
@@ -208,6 +250,8 @@ warnings.filterwarnings('ignore', category=UserWarning, module='urllib3')
 4. Add tests if applicable
 5. Submit a pull request
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -226,6 +270,7 @@ If you encounter issues:
 1. Check the [troubleshooting section](#-troubleshooting)
 2. Review logs in `logs/app.log`
 3. Open an issue with detailed error information
+4. Check [CHANGELOG.md](CHANGELOG.md) for recent updates
 
 ---
 
