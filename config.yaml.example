@@ -1,0 +1,91 @@
+# YouTube Transcript Processor Configuration
+
+# List of YouTube channel usernames to process
+# Add your target channels here
+channels:
+  - "example_channel1"
+  - "example_channel2"
+  - "example_channel3"
+
+# Preferred languages for transcript extraction (in order of preference)
+# Common options: ["en", "en-US", "en-GB", "es", "fr", "de", "ja", "ko"]
+preferred_languages:
+  - "en"
+  - "en-US"
+
+# Whether to preserve HTML formatting in transcripts
+html_formatting: true
+
+# Maximum length for generated file names (excluding extension)
+file_name_max_length: 30
+
+# Whether to include timestamp in file names
+file_name_timestamp: true
+
+# Processing settings
+processing:
+  # Number of days to look back for new videos
+  days_back: 3
+  
+  # Skip videos with these keywords in the title (case-insensitive)
+  skip_keywords:
+    - "short"
+    - "shorts"
+  
+  # Maximum retries for failed operations
+  max_retries: 3
+
+# OpenAI settings
+openai:
+  # Model to use for summarization
+  model: "gpt-4.1-nano"
+  
+  # Maximum tokens for summary generation
+  max_tokens: 4000
+  
+  # Temperature for creativity (0.0 to 1.0)
+  temperature: 0.5
+
+# Google Cloud Text-to-Speech settings
+tts:
+  # Language code for speech synthesis
+  language_code: "en-US"
+  
+  # Voice name (options: en-US-Standard-A, en-US-Standard-B, etc.)
+  voice_name: "en-US-Standard-B"
+  
+  # Voice gender: NEUTRAL, MALE, FEMALE
+  voice_gender: "NEUTRAL"
+  
+  # Speaking rate (0.25 to 4.0, default: 1.0)
+  speaking_rate: 1.0
+  
+  # Audio settings
+  audio:
+    # Sample rate in Hz
+    sample_rate: 24000
+    
+    # Volume gain in dB
+    volume_gain: 0.0
+
+# Google Drive settings
+drive:
+  # Base folder name in Google Drive
+  base_folder: "YTTranscript"
+  
+  # Subfolder names for different content types
+  subfolders:
+    transcripts: "Transcripts"
+    summaries: "Summaries"
+    audio: "Audio"
+
+# Logging settings
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+  
+  # Whether to include timestamps in logs
+  include_timestamps: true
+  
+  # Maximum log file size in MB
+  max_file_size: 10
