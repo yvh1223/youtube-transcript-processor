@@ -1,0 +1,108 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Configuration Files (contain sensitive data)
+config.yaml
+google.json
+*.json
+
+# API Keys and Credentials
+*.key
+*.pem
+credentials/
+secrets/
+
+# Logs
+logs/
+*.log
+*.out
+
+# Temporary Files
+temp/
+tmp/
+channels/
+*.tmp
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Audio/Video Files (can be large)
+*.mp3
+*.mp4
+*.wav
+*.avi
+*.mov
+
+# CSV Data Files
+*.csv
+
+# Backup Files
+*.bak
+*.backup
+
+# Windows
+*.exe
+*.dll
+
+# FFmpeg (if stored locally)
+ffmpeg/
+ffprobe/
+
+# Coverage Reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Documentation Build
+docs/_build/
