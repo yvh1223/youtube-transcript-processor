@@ -1,0 +1,29 @@
+# Core Python packages
+pandas>=2.0.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# Date/time handling
+python-dateutil>=2.8.0
+
+# YouTube processing
+youtube-transcript-api>=0.6.0
+scrapetube>=2.5.0
+
+# AI and OpenAI
+openai>=1.0.0
+
+# Google Cloud services
+google-cloud-texttospeech>=2.16.0
+google-auth>=2.17.0
+google-api-python-client>=2.88.0
+
+# Audio processing
+pydub>=0.25.0
+
+# Web requests and utilities
+requests>=2.31.0
+urllib3>=2.0.0
+
+# Optional: For better timezone handling on older Python versions
+# pytz>=2023.3  # Uncomment if using Python < 3.9
