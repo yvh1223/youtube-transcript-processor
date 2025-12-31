@@ -5,13 +5,16 @@ An automated Python application that processes YouTube channels to extract trans
 ## 🚀 Features
 
 - **Multi-Channel Processing**: Process multiple YouTube channels simultaneously
-- **Smart Filtering**: Only processes videos from the last 3 days to focus on recent content
+- **Smart Filtering**: Only processes videos from the last 7 days to focus on recent content (configurable)
+- **Intelligent Rate Limiting**: Prevents YouTube IP bans with configurable delays between requests
 - **Transcript Extraction**: Downloads YouTube transcripts with language preferences
 - **AI Summarization**: Generates comprehensive summaries using OpenAI GPT models
 - **Text-to-Speech**: Converts summaries to high-quality MP3 audio using Google Cloud TTS
+- **Cost-Optimized TTS**: Uses Standard voices with 4M free characters/month
 - **Cloud Storage**: Automatically uploads all files to organized Google Drive folders
 - **Duplicate Prevention**: Tracks processed videos to avoid reprocessing
-- **Error Handling**: Robust error handling with detailed logging
+- **Error Handling**: Robust error handling with IP ban detection and helpful recovery suggestions
+- **Modular Architecture**: Clean separation of concerns with dedicated modules for each function
 
 ## 🔄 How It Works
 
@@ -23,11 +26,13 @@ sequenceDiagram
     participant Google TTS
     participant Google Drive
 
-    Script->>YouTube: Scrape recent videos (3 days)
+    Script->>YouTube: Scrape recent videos (7 days)
     YouTube-->>Script: Video list + metadata
-    
-    Script->>YouTube: Get transcript for each video
+
+    Script->>YouTube: Get transcript for each video (with rate limiting)
     YouTube-->>Script: Transcript text
+
+    Note over Script: Wait 3s between requests (configurable)
     
     Script->>OpenAI: Generate summary from transcript
     OpenAI-->>Script: AI-generated summary
@@ -44,12 +49,21 @@ sequenceDiagram
 ## 📁 Project Structure
 
 ```
-YT/
-├── new_main.py           # Main application script
+youtube-transcript-processor/
+├── main.py              # Main application entry point
 ├── config.yaml          # Configuration file
-├── logs/                 # Application logs
+├── .env                 # Environment variables (not committed)
+├── src/                 # Source modules
+│   ├── config.py        # Configuration loader
+│   ├── youtube_processor.py  # Transcript extraction
+│   ├── summarizer.py    # AI summarization
+│   ├── tts.py           # Text-to-speech
+│   ├── drive_uploader.py     # Google Drive uploads
+│   └── utils.py         # Helper functions
+├── logs/                # Application logs
 ├── channels/            # Local processing folder (temporary)
-└── google.json          # Google Cloud service account credentials
+├── archive/             # Archived old code, credentials, and dev files
+└── run.sh               # Wrapper script to run with venv
 ```
 
 ## 🛠️ Prerequisites
@@ -138,7 +152,7 @@ file_name_timestamp: true
 Create a `.env` file:
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
-GOOGLE_APPLICATION_CREDENTIALS=./google.json
+GOOGLE_APPLICATION_CREDENTIALS=./archive/gen-lang-client-0074099179-3b8f73266f6f.json
 ```
 
 ### 3. Google Cloud Setup
@@ -152,14 +166,19 @@ GOOGLE_APPLICATION_CREDENTIALS=./google.json
 
 ### Basic Usage
 ```bash
-python new_main.py
+# Using wrapper script (recommended)
+./run.sh         # Runs main.py with venv activated
+
+# Manual (activate venv first)
+source venv/bin/activate
+python main.py
 ```
 
 ### What the Script Does
-1. **Scrapes** recent videos (last 3 days) from configured YouTube channels
-2. **Downloads** transcripts for each video
-3. **Generates** AI summaries using OpenAI
-4. **Creates** audio versions of summaries using Google TTS
+1. **Scrapes** recent videos (last 7 days, configurable) from configured YouTube channels
+2. **Downloads** transcripts for each video with intelligent rate limiting (3s delays)
+3. **Generates** AI summaries using OpenAI GPT-4o-mini
+4. **Creates** audio versions of summaries using Google Cloud TTS (Standard voice)
 5. **Uploads** all files to organized Google Drive folders:
    ```
    YTTranscript/
@@ -184,29 +203,39 @@ Files are named with format: `{video_title}_{YYYYMMDD}.txt/mp3`
 
 ## 🔧 Customization
 
+All customization is done via `config.yaml`:
+
 ### Modify Processing Window
-Change the time window for video processing in `new_main.py`:
-```python
-if time_delta > timedelta(days=3):  # Change from 3 to desired days
+```yaml
+processing:
+  days_back: 7  # Change number of days to look back
 ```
 
+### Adjust Rate Limiting (Prevent IP Bans)
+```yaml
+processing:
+  rate_limiting:
+    delay_between_videos: 3      # Seconds between transcript requests
+    delay_between_channels: 5    # Seconds between channel processing
+```
+**Note**: Increase delays if experiencing YouTube IP bans. For details, see the "API Rate Limiting" section in CLAUDE.md.
+
 ### Adjust AI Summary Settings
-Modify the OpenAI model and parameters:
-```python
-model="gpt-4.1-nano",  # Change model
-max_tokens=4000,       # Adjust token limit
-temperature=0.5,       # Adjust creativity
+```yaml
+openai:
+  model: "gpt-4o-mini"    # Change model (gpt-4o, gpt-4o-mini, etc.)
+  max_tokens: 4000        # Adjust token limit
+  temperature: 0.5        # Adjust creativity (0.0-1.0)
 ```
 
 ### TTS Voice Settings
-Customize the voice in `synthesize_chunk()`:
-```python
-voice = texttospeech.VoiceSelectionParams(
-    language_code="en-US",
-    name="en-US-Standard-B",  # Try different voices
-    ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL,
-)
+```yaml
+tts:
+  voice_name: "en-US-Standard-B"  # Standard = $4/M, Neural2 = $16/M
+  voice_gender: "NEUTRAL"          # NEUTRAL, MALE, FEMALE
+  speaking_rate: 1.0               # Speed adjustment (0.25-4.0)
 ```
+**Pricing**: Standard voices provide 4M free chars/month at $4/M after. Neural2 voices cost $16/M with 1M free/month.
 
 ## 📝 Logging
 
@@ -238,19 +267,25 @@ warnings.filterwarnings('ignore', category=UserWarning, module='urllib3')
 - Check API quotas in Google Cloud Console
 - Ensure credentials file path is correct
 
+**YouTube IP Ban:**
+```
+❌ Error: YouTube is blocking requests from your IP
+💡 Tip: Wait 24-48 hours, or increase delay_between_videos in config.yaml
+```
+- Wait 24-48 hours for ban to lift
+- Increase `delay_between_videos` in config.yaml
+- See CLAUDE.md for rate limiting details and prevention strategies
+
 **Rate limiting:**
-- The script includes automatic retry logic
-- YouTube API has rate limits - script will pause and resume
+- Script includes intelligent rate limiting with configurable delays
+- Failed videos are automatically retried on next run
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+4. Submit a pull request
 
 ## 📄 License
 
@@ -269,8 +304,8 @@ This tool is for educational and personal use. Ensure you comply with:
 If you encounter issues:
 1. Check the [troubleshooting section](#-troubleshooting)
 2. Review logs in `logs/app.log`
-3. Open an issue with detailed error information
-4. Check [CHANGELOG.md](CHANGELOG.md) for recent updates
+3. See `CLAUDE.md` for implementation details and rate limiting
+4. Open an issue with detailed error information
 
 ---
 

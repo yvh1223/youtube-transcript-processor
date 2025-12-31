@@ -54,6 +54,9 @@ tmp/
 channels/
 *.tmp
 
+# Archive Files
+archive/
+
 # OS Generated Files
 .DS_Store
 .DS_Store?
